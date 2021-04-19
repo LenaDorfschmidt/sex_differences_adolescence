@@ -1,5 +1,5 @@
-library(ggseg)
-library(ggsegExtra)
+library(ggseg) # We are using ggseg 1.5.5
+library(ggsegExtra) # We are using ggseg 1.5.5
 library(RColorBrewer)
 library(scales)
 library(viridis)
@@ -7,7 +7,6 @@ library(colormap)
 
 #brainplot = function(values,nm.labels,outpath=NULL,lower=NULL,upper=NULL,coloroption=NULL,position=NULL,disp_nan=FALSE){
 brainplot = function(values,nm.labels,outpath=NULL,lower=NULL,upper=NULL,coloroption=NULL,position=NULL,disp_nan=FALSE,sig=NULL){
-  #load('~/Documents/Education/Cambridge/general_scripts/glassersubcortex_R.bin')
   if(is.null(min)){
     lower=min(values,na.rm=T)
   }
@@ -25,15 +24,6 @@ brainplot = function(values,nm.labels,outpath=NULL,lower=NULL,upper=NULL,colorop
   }
   if(all(coloroption=='PuOr')){
     coloroption = brewer.pal(10,'PuOr')
-  }
-  if(all(coloroption=='greens')){
-    coloroption = brewer.pal(9,'Greens')
-  }
-  if(all(coloroption=='purples')){
-    coloroption = brewer.pal(9,'Purples')
-  }
-  if(all(coloroption=='oranges')){
-    coloroption = brewer.pal(9,'Oranges')
   }
   if(all(coloroption=='viridis')){
     coloroption = viridis_pal()(1000)
@@ -56,28 +46,61 @@ brainplot = function(values,nm.labels,outpath=NULL,lower=NULL,upper=NULL,colorop
   if(all(coloroption=='blue2red_harsh')){
     coloroption = colorRamps::blue2red(1000)
   }
-  # if (is.null(sig)) {
-  #   sig = vector(length=length(nm))
-  # }
 
+  # Convert Labels 
+  #label.idx = match(nm.labels,nm)
+  nm.labels = gsub('  ','_',nm)
+  nm.labels = paste(nm.labels, "_ROI", sep="") # uncomment for orig
+  nm.labels[1:16] = c("Thalamus","Caudate","Putamen","Pallidum","Hippocampus","Amygdala","Accumbens","Diencephalon",
+                   "Thalamus","Caudate","Putamen","Pallidum","Hippocampus","Amygdala","Accumbens","Diencephalon")
+  #nm.labels = labels[label.idx]
+  
+  ###
+  
+  sig = if(!is.null(sig)){sig[which(!is.na(values))]}
   cortex.values = values[which(!is.na(values))]
-  cortex.lables = nm.labels[which(!is.na(values))]
-  #cortex.lables = glassersubcortex$label[match(toupper(nm.labels[!is.na(values)]), toupper(glassersubcortex$label))]
+  cortex.labels = nm.labels[which(!is.na(values))]
+  #cortex.labels = glassersubcortex$label[match(toupper(nm.labels[!is.na(values)]), toupper(glassersubcortex$label))]
   
-  cortex = data.frame(
-    label = cortex.lables,
-    val = cortex.values,
-    stringsAsFactors = FALSE)
-  if (disp_nan) {
-    c <- ggseg(.data=cortex, atlas="glassersubcortex", mapping=aes(fill=val), position=position) +
-      scale_fill_gradientn(colours=coloroption,limits=c(lower,upper))
+  if(!is.null(sig)){
+    cortex = data.frame(
+      label = cortex.labels,
+      val = cortex.values,
+      stringsAsFactors = FALSE,
+      sig=sig)
+    
+    #c <- ggseg(.data=cortex, atlas="glassersubcortex", mapping=aes(fill=val,color=ifelse(sig == 1, 1, NA)), position=position) +
+    c <- ggseg(.data=cortex, atlas="glassersub", mapping=aes(fill=val,color=ifelse(sig == 1, 1, NA)), position=position) +
+      scale_color_continuous(low='red',high='red',na.value="transparent") +
+      if(disp_nan){
+        scale_fill_gradientn(colours=coloroption,limits=c(lower,upper),oob=squish)
+      } else{
+        scale_fill_gradientn(colours=coloroption,limits=c(lower,upper))
+      }
+    
   } else{
-    c <- ggseg(.data=cortex, atlas="glassersubcortex", mapping=aes(fill=val), position=position) +
-      scale_fill_gradientn(colours=coloroption,limits=c(lower,upper),oob=squish)
+    cortex = data.frame(
+      label = cortex.labels,
+      val = cortex.values,
+      stringsAsFactors = FALSE)
+    
+    c <- ggseg(.data=cortex, atlas="glassersub", mapping=aes(fill=val), position=position) +
+      if(disp_nan){
+        scale_fill_gradientn(colours=coloroption,limits=c(lower,upper),oob=squish)
+      } else{
+        scale_fill_gradientn(colours=coloroption,limits=c(lower,upper))
+      }
   }
+  # if (disp_nan) {
+  #   c <- ggseg(.data=cortex, atlas="glassersubcortex", mapping=aes(fill=val), position=position) +
+  #     scale_fill_gradientn(colours=coloroption,limits=c(lower,upper))
+  # } else{
+  #   c <- ggseg(.data=cortex, atlas="glassersubcortex", mapping=aes(fill=val), position=position) +
+  #     scale_fill_gradientn(colours=coloroption,limits=c(lower,upper),oob=squish)
+  # }
   
-
-
+  
+  
   
   
   if(!is.null(outpath)){
