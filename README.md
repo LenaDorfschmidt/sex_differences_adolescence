@@ -14,9 +14,9 @@ To run this code, download the required data. Most of the scripts read in ouputs
 
 1. Run `maturational_index/maturational_index.R` to generate the result on *sex differences in adolescent brain maturational*. 
 2. Run `mdd_decoding/mdd.comparison.R` to run the *co-location analyses with depression*.
-4. To run the *enrichment analyses for cell-types, chromosomes and disorders*:
-      4.1. Run `PLS1_stats.m` to run the PLS analysis using Allen Human Brain Atlas data.
-      4.2. Run `PLS2_bootstrap.m` to bootstrap the obtained PLS weights. 
-      4.3. Now you can run `gene_decoding/gene_enrichment.R` to run the enrichment analyses for cell-types, chromosomes and disorders.
+3. To run the *enrichment analyses for cell-types, chromosomes and disorders*:
+4. Run `PLS1_stats.m` to run the PLS analysis using Allen Human Brain Atlas data.
+    4.2. Run `PLS2_bootstrap.m` to bootstrap the obtained PLS weights. 
+    4.3. Now you can run `gene_decoding/gene_enrichment.R` to run the enrichment analyses for cell-types, chromosomes and disorders.
 5. Finally, running `neurosynth/wordcloud.R` generates the wordcloud maps in manuscript. 
 
