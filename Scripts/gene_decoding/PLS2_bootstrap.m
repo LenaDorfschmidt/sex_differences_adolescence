@@ -1,5 +1,5 @@
 clear
-path_data='plsout/';
+path_data='../../Results/gene_decoding/plsout/';
 %load('AHBAdata.mat')
 %nm = nm(sum(isnan(parcelExpression),2)==0);
 
@@ -45,7 +45,7 @@ for i=1:bootnum
       
     PLSweights_ind=[];
     for iw=1:size(PLSw,1)
-         temp=stats.W(:,iw);%extract PLS1 weights
+        temp=stats.W(:,iw);%extract PLS1 weights
         %CHANGEEE
         newW=temp(wSort(iw,:)); %order the newly obtained weights the same way as initial PLS 
    
@@ -58,7 +58,7 @@ for i=1:bootnum
 end
 
 
-pval_rh=0.05;
+%pval_rh=0.05;
 for id=1:dim
 
     PLS_perm=squeeze(PLSweights(:,id,:));
@@ -67,20 +67,17 @@ for id=1:dim
     %get bootstrap weights
     temp1_gen=PLSw(id,:)./PLSsw;
     PLS_real=repmat(PLSw(id,:),size(PLS_perm,1),1);
-    %pval=sum(PLS_real<PLS_perm)/size(PLS_perm,1);
    
     temp1=temp1_gen;
     %order bootstrap weights (Z) and names of regions
     [Z1 ind1]=sort(temp1,'descend');
     PLSid=PLSids(id,ind1);
     geneindex_ind=geneindex(id,ind1);
-    pval_corrected=mafdr(pvals(ind1),'BHFDR',true);
-    z_fdr = fiqt(Z1);
     entrezID = EntrezIDs(id,ind1);
 
-    tab_all = table(PLSid',categorical(entrezID)',geneindex_ind',Z1',z_fdr',pvals',pval_corrected');
-    tab_all.Properties.VariableNames = {'gene_name','entrez_ID','gene_index','z_uncorr','z_fdr','pval','pval_fdr'};
-    writetable(tab_all,[path_data 'pls_geneWeights_' num2str(id) '.csv'])
+    tab_all = table(PLSid',categorical(entrezID)',geneindex_ind',Z1');
+    tab_all.Properties.VariableNames = {'gene_name','entrez_ID','gene_index','z_uncorr'};
+    writetable(tab_all,[path_data 'pls' num2str(id) '.csv'])
     
     %%%%%%%
     

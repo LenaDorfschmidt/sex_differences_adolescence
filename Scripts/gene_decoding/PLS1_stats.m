@@ -1,8 +1,10 @@
 clear all
-MI = readtable('~/Documents/Education/Cambridge/fMRI_NSPN/Results/gene_decoding/diff.mi.all.txt','TreatAsEmpty',{'NA'});
-mi = mean([MI.x(17:196),MI.x(197:376)],2,'omitnan');
+MI = readtable('../../Results/maturational_index/diff.mi.all.txt','TreatAsEmpty',{'NA'}, 'ReadVariableNames',0);
+mi = mean([MI.Var1(17:196),MI.Var1(197:376)],2,'omitnan');
 
-load('~/Documents/Education/Cambridge/Datasets/AllenBrainAtlas/Petra/AHBAdata.mat')
+perm_id = readtable('../../Data/gene_decoding/perm.id.163.geodisic.csv');
+
+load('../../Data/gene_decoding/AHBAdata.mat')
 parcelExpression = parcelExpression(:,2:end);
 
 idx_mi = not(ismissing(mi));
@@ -12,32 +14,46 @@ mi = mi(idx_mi);
 idx_gene = find(not(isnan(sum(parcelExpression,2))));
 
 X = parcelExpression(idx_gene,:);
+%perm_id = perm_id(idx_gene,:);
 X = zscore(X')';
 Y = mi(idx_gene);
 Y = zscore(Y);
 
-save_AHBA(tmp,:) = X;
-csvwrite('~/Documents/Education/Cambridge/fMRI_NSPN/Results/gene_decoding/AHBA_PLS_X_data.csv',save_AHBA)
-writetable(cell2table(nm),'~/Documents/Education/Cambridge/fMRI_NSPN/Results/gene_decoding/AHBA_gene_names.csv')
+% save_AHBA(tmp,:) = X;
+% csvwrite('~/Documents/Education/Cambridge/fMRI_NSPN/Results/gene_decoding/AHBA_PLS_X_data.csv',save_AHBA)
+% writetable(cell2table(nm),'~/Documents/Education/Cambridge/fMRI_NSPN/Results/gene_decoding/AHBA_gene_names.csv')
 
 dim=4;
-numPerm=1000;
+numPerm=10000;
 
 [PLS.XL,PLS.YL,PLS.XS,PLS.YS,PLS.BETA,PLS.PCTVAR,PLS.MSE,PLS.stats]=plsregress(X,Y,dim,'CV',2);
 
 temp=cumsum(100*PLS.PCTVAR(2,1:dim)); %percentage of variance explained in Y by each PLS
 Rsquared = temp(dim); %Equal to sum, variance explained by both component
 
-%assess significance of PLS result
+% %assess significance of PLS result
+% for j=1:numPerm %10000
+%     j
+%     order=randperm(size(Y,1));
+%     Yp=Y(order,:);
+%     [XLr,YLr,XSr,YSr,BETAr,PCTVARr,MSEr,statsr]=plsregress(X,Yp,dim,'CV',2);
+%     PCTVARr_all(:,j)=PCTVARr(2,:);
+%     temp=cumsum(100*PCTVARr(2,1:dim));
+%     Rsq(j) = temp(dim);
+% end
+
+perm_id=table2array(perm_id);
+% Spin Test
 for j=1:numPerm %10000
     j
-    order=randperm(size(Y,1));
+    order=perm_id(:,j);
     Yp=Y(order,:);
     [XLr,YLr,XSr,YSr,BETAr,PCTVARr,MSEr,statsr]=plsregress(X,Yp,dim,'CV',2);
     PCTVARr_all(:,j)=PCTVARr(2,:);
     temp=cumsum(100*PCTVARr(2,1:dim));
     Rsq(j) = temp(dim);
 end
+
 
 for i=1:dim
    v_real=sum(PLS.PCTVAR(2,1:i));
@@ -72,7 +88,7 @@ p_values
 %first row, explained in X (genes matrix), second explained in Y (regional
 %vals) this is the one you want
 myStats=[PLS.PCTVAR]; 
-path_output = 'plsout';
+path_output = '../../Results/gene_decoding/plsout';
 [s1 s2 s3]=mkdir(path_output);
 csvwrite([path_output '/PLS_stats.csv'],myStats);
 save([path_output '/Y.mat'],'Y');
@@ -92,4 +108,4 @@ for g = 1:size(probeInformation.EntrezID,1)
     probeInformation.ENSG{g} = ['ENSG',repmat('0',1,(maxl-nchar)),num2str(probeInformation.EntrezID(g))]; 
 end  
     
-writetable(table(probeInformation.GeneSymbol, probeInformation.ENSG'),'~/Desktop/tmp.csv')  
+%writetable(table(probeInformation.GeneSymbol, probeInformation.ENSG'),'~/Desktop/tmp.csv')  

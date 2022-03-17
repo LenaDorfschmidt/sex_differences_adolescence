@@ -1,9 +1,16 @@
 gene_nulls_nearest_neighbour <- function(gene_list, gene_stat, gene_set,genes,name, n_perm, rank=T, outdir){
+  # gene_list: genes included in background list
+  # gene_stat: gene statistics to use for ranking
+  # gene_set
+  # genes
+  # name
+  # n_perm: Number of permuations to run (max 5000)
+  
   if (rank==T){
     gene_stat <- rank(gene_stat)
   }
   print(paste0("Current geneset: ", name))
-  # Calculate real median ranl
+  # Calculate real median rank
   gene_set_median <- median(gene_stat[match(gene_set,gene_list,nomatch=0)],na.rm=T)-median(gene_stat)
   print(paste0("Empirical Median Rank = ", gene_set_median))
   # Create null distribution matched for gene length
@@ -20,6 +27,7 @@ gene_nulls_nearest_neighbour <- function(gene_list, gene_stat, gene_set,genes,na
   p.value = 1
   count = 1
   while ((!((p.value > 0.025)&(p.value < 0.975)))&(count<11)) {
+    print('3 nearest neighbours')
     gene_set_rand <- sapply(1:n_perm, function(x) list(sample(genes2$hgnc_symbol, size = length(gene_set),replace = T)))
     gene_set_lengths_rand <- sapply(1:n_perm, function(x) median(genes$length[match(gene_set_rand[[x]],gene_list)],na.rm=T))
     #hist(gene_set_lengths_rand,50)
@@ -33,6 +41,7 @@ gene_nulls_nearest_neighbour <- function(gene_list, gene_stat, gene_set,genes,na
   
   # Restrict to only 2 nearest neighbours
   if(!((p.value > 0.025)&(p.value < 0.975))) {
+    print('2 nearest neighbours')
     genes2 <- genes
     genes2$group <- (genes$hgnc_symbol %in% gene_set)
     zz <- match.data(matchit(group ~ length, data=genes2, method="nearest", 
@@ -58,6 +67,7 @@ gene_nulls_nearest_neighbour <- function(gene_list, gene_stat, gene_set,genes,na
   
   # Rerun without replacement
   if(!((p.value > 0.025)&(p.value < 0.975))) {
+    print('without replacement')
     genes2 <- genes
     genes2$group <- (genes$hgnc_symbol %in% gene_set)
     zz <- match.data(matchit(group ~ length, data=genes2, method="nearest", 
