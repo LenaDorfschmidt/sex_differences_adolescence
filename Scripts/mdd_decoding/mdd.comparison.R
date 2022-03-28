@@ -29,13 +29,14 @@ t.case.control = read.table('Data/mdd/mdd.case.control.t.txt')[,1]
 diff.mi = read.table(paste0(data.path, 'diff.mi.txt'))[[1]]
 p.diff.MI = read.table(paste0(data.path, 'z.p.fdr.MI.txt'))[,1]
 
-
+# Case control map subcortex
 df.aseg$value = t.case.control[aseg.nm.idx]
 pdf(paste0(plot.out,'/mdd.case.control.subc.pdf'))
 ggseg(.data=df.aseg, mapping=aes(fill=value), atlas = "aseg", view = 'axial')+ 
   scale_fill_gradientn(colours= viridis_pal()(1000), limits = c(-4,1), oob=squish)   
 dev.off()
 
+# Case control map cortex
 pdf(paste0(plot.out,'/mdd.case.control.cort.pdf'))
 ggseg(.data=data.frame(value = t.case.control, label = nm.ggseg), mapping=aes(fill=value), atlas = 'glassersub', position='stacked')+ 
   scale_fill_gradientn(colours = viridis_pal()(1000), limits=c(-4,1), breaks = c(-4,1))+theme_void()+labs(fill='')
@@ -43,6 +44,7 @@ dev.off()
 
 mi.colors = seismic.colorscale[round(rescale(diff.mi, to = c(1,1000)))]
 
+# Significance of correlation between MDD case control difference and delta MI
 t.test = cor.test(diff.mi,t.case.control)
 
 df=data.frame(mi=diff.mi, mdd=t.case.control, color = ifelse(p.diff.MI<0.05,1,0),shape = ifelse(p.case.control<0.05,21,19))
@@ -60,7 +62,9 @@ ggplot(df, aes(x=mi, y=mdd)) +
 dev.off()
 
 
-source('Scripts/external/rotate_parcellation-master/R/perm.sphere.p.R')
+# Spin test p-value for correlation
+# Download spin test function from: https://github.com/frantisekvasa/rotate_parcellation
+source('Scripts/external/rotate_parcellation-master/R/perm.sphere.p.R') 
 p.spin.mdd = perm.sphere.p(df$mdd[17:346],df$mdd[17:346],perm.id.330)
 
 print(paste0('MDD-Delta MI Correlation: ',round(cor.test(df$mdd,df$mi)$estimate,4), ' and p-value: ',round(cor.test(df$mdd,df$mi)$p.value,4)))

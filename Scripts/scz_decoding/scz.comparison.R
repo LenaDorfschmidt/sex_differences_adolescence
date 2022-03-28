@@ -27,9 +27,9 @@ t.case.control = read.table('Data/scz/scz.case.control.t.txt')[,1]
 diff.mi = read.table(paste0(data.path, 'diff.mi.all.txt'))[[1]]
 p.fdr.diff.MI = read.table(paste0(data.path, 'z.p.fdr.MI.all.txt'))[,1]
 
-
 mi.colors = seismic.colorscale[round(rescale(diff.mi, to = c(1,1000)))]
 
+# Correlation between SCZ case control map and delta MI
 t.test = cor.test(diff.mi,t.case.control)
 
 df=data.frame(mi=diff.mi, scz=t.case.control, color = ifelse(p.fdr.diff.MI<0.05,1,0),shape = ifelse(p.fdr.diff.MI<0.05,21,19))
@@ -46,6 +46,8 @@ ggplot(df, aes(x=mi, y=scz)) +
         plot.title = element_text(size=14,hjust=0.5,face='italic'))
 dev.off()
 
+# Spin test p-value for correlation
+# Download spin test function from: https://github.com/frantisekvasa/rotate_parcellation
 source('Scripts/external/rotate_parcellation-master/R/perm.sphere.p.R')
 df.no.na = df[-which(is.na(df$mi)),]
 p.spin.scz = perm.sphere.p(df.no.na$scz[17:346],df.no.na$mi[17:346],perm.id.330)

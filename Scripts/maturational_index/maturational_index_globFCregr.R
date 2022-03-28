@@ -20,15 +20,14 @@ script.path = paste0('Scripts/')
 source(paste0(script.path,'helper/ztest_unpooled.R')) 
 source(paste0(script.path,'helper/predict.LME.SE.R'))
 
-
 data.path = paste0('Data/connectivity_matrices/')
 results.path = paste0('Results/')
 load(paste0(data.path,'nspn.main.RData'))
 plot.out = paste0(results.path,'replication/',data,'/maturational_index/')
 
-
 ifelse(!dir.exists(file.path(paste0(plot.out))), dir.create(file.path(plot.out)), FALSE)
 
+# Regional Strength
 str = apply(fc,c(3,1),function(x) mean(x,na.rm=TRUE))
 str.cort = apply(fc[,17:346,],c(3,1),function(x) mean(x,na.rm=TRUE))
 str.subc = apply(fc[,1:16,],c(3,1),function(x) mean(x,na.rm=TRUE))
@@ -45,6 +44,7 @@ glob.m = lme(FC~mri_pseudo_age+sex+mri_center, random=~1|id_nspn,data=fc.glob)
 newdat = expand.grid(mri_center=as.factor(3),sex=unique(MRI_table$sex),mri_pseudo_age=range(MRI_table$mri_pseudo_age), vol = range(MRI_table$vol))  
 pred= predictSE.lme(glob.m, newdata=newdat, se.fit=T, level=0)   
 
+# Global FC development by age
 pdf(paste0(plot.out,'spaghetti.pdf'),height = 3,width = 4)
 ggplot(fc.glob,aes(x=mri_pseudo_age,y=FC,color=as.factor(sex),fill=as.factor(sex))) + 
   geom_point(aes(alpha=0.5)) + 
@@ -287,14 +287,15 @@ dir.create(paste0(plot.out, 'diff-fc14-fc1426/'))
 #======================================================================================================
 #                                  Sex Difference in Maturational Index                                      
 #======================================================================================================
-mi.m = read.csv(paste0(plot.out,'/male/cc_mat_idx.txt'))[,2]
+mi.m = read.csv(paste0(plot.out,'/male/cc_mat_idx.txt'))[,2] # Load in MI for males and females again
 mi.f = read.csv(paste0(plot.out,'/female/cc_mat_idx.txt'))[,2]
-diff.mi = mi.f-mi.m
+diff.mi = mi.f-mi.m # Sex difference in MI
 diff.mi.all = diff.mi[match(seq(1,376),hcp.keep.id)]
 
 write.table(mi.f-mi.m,paste0(plot.out,'/diff.mi.txt'), row.names = F, col.names = F)
 write.table(diff.mi.all,paste0(plot.out,'diff.mi.all.txt'),row.names = F, col.names = F)
 
+# Plot delta MI subcortex
 df.aseg$value = diff.mi[aseg.nm.idx]
 pdf(paste0(plot.out,'/diff.mi_subc.pdf'))
 ggseg(.data=df.aseg, mapping=aes(fill=value), atlas = "aseg", view = 'axial')+ 
@@ -323,11 +324,11 @@ for (i in 1:nroi) {
   f.mi.se[i] = summary(f.lm)$coefficients[2,2]
 }
 
+# Estimate effect size of sex difference
 z = vector(length=nroi)
 for (i in (1:346)) {
   z[i] = (m.mi.beta[i]-f.mi.beta[i])/sqrt(m.mi.se[i]^2+f.mi.se[i]^2)
 }
-
 
 pvalue2sided=2*pnorm(-abs(z))
 write.table(z, file = paste0(plot.out,'/z.MI.txt'),row.names = FALSE, col.names = FALSE)

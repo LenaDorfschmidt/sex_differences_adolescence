@@ -277,7 +277,8 @@ for (s in (1:2)) {
   cc.slt_14.p.fdr = p.adjust(cc.slt_14.p, method = 'fdr')
   write.csv(rr.slt_14.rho, file = paste0(plot.out,gender_str,'/rr_mat_idx.txt'))
   write.csv(cc.slt_14.rho, file = paste0(plot.out,gender_str,'/cc_mat_idx.txt'))
-
+  
+  # Fig S6
   df.aseg$value = cc.slt_14.rho[aseg.nm.idx]
   pdf(paste0(plot.out,gender_str,'/mi_subc.pdf'))
   print(ggseg(.data=df.aseg, mapping=aes(fill=value), atlas = "aseg", view = 'axial')+
@@ -370,14 +371,15 @@ dev.off()
 #======================================================================================================
 #                                  Sex Difference in Maturational Index                                      
 #======================================================================================================
-mi.m = read.csv(paste0(plot.out,'/male/cc_mat_idx.txt'))[,2]
+mi.m = read.csv(paste0(plot.out,'/male/cc_mat_idx.txt'))[,2] # Load in male and female MI
 mi.f = read.csv(paste0(plot.out,'/female/cc_mat_idx.txt'))[,2]
-diff.mi = mi.f-mi.m
+diff.mi = mi.f-mi.m # sex difference in MI
 diff.mi.all = diff.mi[match(seq(1,376),hcp.keep.id)]
 
 write.table(mi.f-mi.m,paste0(plot.out,'/diff.mi.txt'), row.names = F, col.names = F)
 write.table(diff.mi.all,paste0(plot.out,'diff.mi.all.txt'),row.names = F, col.names = F)
 
+# Fig S6
 df.aseg$value = diff.mi[aseg.nm.idx]
 pdf(paste0(plot.out,'/diff.mi_subc.pdf'))
 ggseg(.data=df.aseg, mapping=aes(fill=value), atlas = "aseg", view = 'axial')+ 
@@ -390,10 +392,10 @@ ggseg(.data = data.frame(value = diff.mi, label = nm.ggseg), mapping=aes(fill=va
   scale_fill_gradientn(colours = seismic.colorscale, limits=c(-0.8,0.8), breaks = c(-0.8,0,0.8))+theme_void()+labs(fill='')
 dev.off()
 
-m.14 = as.matrix(read.csv(paste0(plot.out,'/male/fc14.txt'))[,2:347])
-f.14 = as.matrix(read.csv(paste0(plot.out,'/female/fc14.txt'))[,2:347])
-m.delta = as.matrix(read.csv(paste0(plot.out,'/male/delta_age_beta.txt'))[,2:347])
-f.delta = as.matrix(read.csv(paste0(plot.out,'/female/delta_age_beta.txt'))[,2:347])
+m.14 = as.matrix(read.csv(paste0(plot.out,'/male/fc14.txt'))[,2:347]) # Edgewise male FC14
+f.14 = as.matrix(read.csv(paste0(plot.out,'/female/fc14.txt'))[,2:347]) # Edgewise female FC14
+m.delta = as.matrix(read.csv(paste0(plot.out,'/male/delta_age_beta.txt'))[,2:347]) # Edgewise female FC14-26
+f.delta = as.matrix(read.csv(paste0(plot.out,'/female/delta_age_beta.txt'))[,2:347]) # Edgewise male FC14-26
 m.mi.beta = f.mi.beta = m.mi.se = f.mi.se = vector(length = nroi)
 
 # Comparing Coefficients
@@ -406,11 +408,11 @@ for (i in 1:nroi) {
   f.mi.se[i] = summary(f.lm)$coefficients[2,2]
 }
 
+# Estimate effect size of sex difference in MI
 z = vector(length=nroi)
 for (i in (1:346)) {
   z[i] = (m.mi.beta[i]-f.mi.beta[i])/sqrt(m.mi.se[i]^2+f.mi.se[i]^2)
 }
-
 
 pvalue2sided=2*pnorm(-abs(z))
 write.table(z, file = paste0(plot.out,'/z.MI.txt'),row.names = FALSE, col.names = FALSE)
@@ -420,7 +422,6 @@ write.table(ifelse(fdr.pvalue2sided<0.05,z,NA), file = paste0(plot.out,'/z.MI.th
 
 z.p.fdr.all = fdr.pvalue2sided[match(seq(1,376),hcp.keep.id)]
 write.table(z.p.fdr.all, file = paste0(plot.out,'/z.p.fdr.MI.all.txt'),row.names = FALSE, col.names = FALSE)
-
 
 print(paste('Number of significantly different ROIs: ',sum(fdr.pvalue2sided<(0.05))))
 
