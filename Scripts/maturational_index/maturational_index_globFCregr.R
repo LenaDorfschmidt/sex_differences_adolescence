@@ -9,9 +9,9 @@ library(Rfast) # Version 2.0.1
 library(RColorBrewer) # Version 1.1-2
 library(tidyr) # Version 1.1.2
 library(vows) # Version 0.5
-library(viridis)
-library(scales)
-library(colormap)
+library(viridis) # Version 0.5.1 
+library(scales) # Version 1.1.1 
+library(colormap) # Version 0.1.4 
 
 data = 'glob.fc.regr' 
 script.path = paste0('Scripts/')

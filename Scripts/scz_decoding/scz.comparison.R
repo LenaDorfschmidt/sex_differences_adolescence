@@ -19,9 +19,9 @@ p.diff.MI = read.table('Results/maturational_index/z.p.fdr.MI.txt')[,1]
 ifelse(!dir.exists(file.path(plot.out)), dir.create(file.path(plot.out)), FALSE)
 
 # Load in SCZ case control map, generated from Cobre Data
-p.case.control = read.table('Data/scz/p.case.control.txt')[,1]
+p.case.control = read.table('Data/scz/scz.case.control.p.txt')[,1]
 p.fdr.case.control = p.adjust(p.case.control, method='fdr')
-t.case.control = read.table('Data/scz/t.case.control.txt')[,1]
+t.case.control = read.table('Data/scz/scz.case.control.t.txt')[,1]
 
 # Load in Delta MI
 diff.mi = read.table(paste0(data.path, 'diff.mi.all.txt'))[[1]]
@@ -43,15 +43,12 @@ ggplot(df, aes(x=mi, y=scz)) +
   xlab(expression(paste(Delta,'MI')))+
   ylab("MDD Case Control") +
   theme(text = element_text(size=12, family ="Helvetica"),
-        plot.title = element_text(size=14,hjust=0.5,,face='italic'))
+        plot.title = element_text(size=14,hjust=0.5,face='italic'))
 dev.off()
 
-
-
-#load('Data/spin-test/perm.id.330.geodisic.RData')
 source('Scripts/external/rotate_parcellation-master/R/perm.sphere.p.R')
 df.no.na = df[-which(is.na(df$mi)),]
-p.spin.scz = perm.sphere.p(df.no.na$scz[17:346],df.no.na$mi[17:346],perm.id)
+p.spin.scz = perm.sphere.p(df.no.na$scz[17:346],df.no.na$mi[17:346],perm.id.330)
 
 print(paste0('SCZ-Delta MI Correlation: ',round(cor.test(df$scz,df$mi)$estimate,4), ' and p-value: ',round(cor.test(df$scz,df$mi)$p.value,4)))
 print(paste0('SCZ-Delta MI Correlation spin p-value: ',round(p.spin.scz,4)))

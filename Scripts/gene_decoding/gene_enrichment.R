@@ -5,7 +5,7 @@ library(scales) # Version 1.1.1
 library(R.matlab) # Version 3.6.2
 library(MatchIt) # Version 4.2.0 
 library(xtable) # Version 1.8-4
-library(dplyr)
+library(dplyr) # Version 1.0.7 
 
 ##############################################################################################################
 #                                            DATA PREPARATION                                                #
@@ -62,21 +62,26 @@ if(data=='NSPN'){
   in.path = out.path = paste0('Results/replication/',data,'/gene_decoding/')
   out.path = paste0('Results/replication/',data,'/')
   load('Data/connectivity_matrices/',data,'.RData')
-  orig.pls = read.csv(paste0(in.path,"plsout/pls1.csv")) # Read in PLS outputs
+  orig.pls = read.csv("Results/gene_decoding/plsout/pls1.csv") # Read in PLS outputs
 }
 
 ###
 pls1 <- read.csv(paste0(in.path,"plsout/pls1.csv")) # Read in PLS outputs
 colnames(pls1)[1]<- 'hgnc_symbol'
 
-# # Load in available gene lengths and chromosome assignments
-# genes = read.csv('~/Documents/Education/Cambridge/fMRI_NSPN/Results/gene_decoding/pls1_biomart.csv') 
-# genes = genes[-which(is.na(genes$length)),]
+# Align PLS1 from Replication analyses with original PLS
+if (data != 'NSPN') {
+  cor.pls = cor.test(orig.pls$z_uncorr[match(pls1$gene_name, orig.pls$gene_name)], pls1$z_uncorr)
+  if (cor.pls < 0) {
+    pls1$z_uncorr = -pls1$z_uncorr
+  }
+}
 
+# # Load in available gene lengths and chromosome assignments
 pls1.genes = genes %>% left_join(pls1, by='hgnc_symbol') # Match chromosome assignment and gene length to PLS1
 pls1.genes = pls1.genes[order(pls1.genes$z_uncorr, decreasing = T),]
 
-genes= pls1.genes[,c(1:7)]
+genes= pls1.genes[,c(1:7)] # Background gene list (i.e. includes gene length)
 pls1 = pls1.genes[,c(1,7,8,9)]
 
 # create null models
@@ -84,7 +89,7 @@ source('Scripts/gene_decoding/gene_nulls_nearest_neighbour.R') # Gene enrichment
 source('Scripts/gene_decoding/run_gene_enrichment.R') # Wrapper script to submit gene lists to gene enrichment function
 source('Scripts/gene_decoding/plot_enrichment_ggridges.R') # Plot enrichment function
 
-n_perm = 5000
+n_perm = 5000 # Number of random permutations
 ################ Chromosomal Enrichment ################
 dir.create(paste0(out.path, 'tmp/')) # This is where gene length match plots will be stored
 

@@ -9,9 +9,9 @@ library(Rfast) # Version 2.0.1
 library(RColorBrewer) # Version 1.1-2
 library(tidyr) # Version 1.1.2
 library(vows) # Version 0.5
-library(viridis)
-library(scales)
-library(colormap)
+library(viridis) # Version 0.5.1 
+library(scales) # Version 1.1.1 
+library(colormap) # Version 0.1.4 
 
 data = 'CV_stratified' 
 script.path = paste0('Scripts/')
@@ -72,7 +72,7 @@ high=0.8
 
 # Calc group glob FC
 # Cortical Volume at age 14 
-c.lm.CV2 = lme(vol~mri_pseudo_age+sex, random=~1|id_nspn,data=MRI_table)
+lm.CV2 = lme(vol~mri_pseudo_age+sex, random=~1|id_nspn,data=MRI_table)
 #AIC(lm.CV1) < AIC(lm.CV2)
 
 # Choosing interaction effect model based on AIC

@@ -60,9 +60,8 @@ ggplot(df, aes(x=mi, y=mdd)) +
 dev.off()
 
 
-#load('Data/spin-test/perm.id.330.geodisic.RData')
 source('Scripts/external/rotate_parcellation-master/R/perm.sphere.p.R')
-p.spin.mdd = perm.sphere.p(df$mdd[17:346],df$mdd[17:346],perm.id)
+p.spin.mdd = perm.sphere.p(df$mdd[17:346],df$mdd[17:346],perm.id.330)
 
 print(paste0('MDD-Delta MI Correlation: ',round(cor.test(df$mdd,df$mi)$estimate,4), ' and p-value: ',round(cor.test(df$mdd,df$mi)$p.value,4)))
 print(paste0('MDD-Delta MI Correlation spin p-value: ',round(p.spin.mdd,4)))
