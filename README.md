@@ -1,5 +1,7 @@
 # Sexually divergent development of depression-related brain networks during healthy human adolescence
 
+[![DOI](https://zenodo.org/badge/275769664.svg)](https://zenodo.org/badge/latestdoi/275769664)
+
 This repository contains the code for the main analyses of the manuscript "Sexually divergent development of depression-related brain networks during healthy human adolescence" by Lena Dorfschmidt, Richard A.I. Bethlehem, Jakob Seidlitz, František Váša, Simon R. White, Rafael Romero-Garcia, Manfred G. Kitzbichler, Athina Aruldass, Ian M. Goodyer, Peter Fonagy, Peter B. Jones, Raymond J. Dolan, the NSPN Consortium, Petra E. Vértes, and Edward T. Bullmore* (2020).
 
 For details behind these analyses refer to the manuscript: https://doi.org/10.1101/2020.07.06.184473
