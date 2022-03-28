@@ -9,6 +9,9 @@ The data used here was initially published by [Váša et al. (2020)](https://doi
 
 All data required to run these analyses can be found at: 
 
+# Requirements
+To run all analyses in this publication, you will additionally need to download the code published by [Váša et al. (2018)](https://github.com/frantisekvasa/rotate_parcellation) to estimate the spherical permutation p-values. Download the code here and place them in a folder `Scripts/external/`.
+
 # How to Run
 To run this code, download the required data. Most of the scripts read in ouputs from other scripts, so the order in which you run them is essential.
 
