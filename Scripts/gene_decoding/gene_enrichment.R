@@ -53,7 +53,7 @@ li <- read.table('Data/gene_decoding/enrichment_analysis/Li2018.txt',header = T)
 PCG = read.table('Data/gene_decoding/enrichment_analysis/PGC2021.txt', header=T)
 
 ###
-data= 'NSPN' # nspn.gsr, regr_FD_by_sex, glob.fc.regr, motionmatched, CV_stratified
+data= 'glob.fc.regr' # nspn.gsr, regr_FD_by_sex, glob.fc.regr, motionmatched, CV_stratified
 if(data=='NSPN'){
   in.path = out.path = 'Results/gene_decoding/'
   out.path = 'Results/'
@@ -62,6 +62,7 @@ if(data=='NSPN'){
   in.path = out.path = paste0('Results/replication/',data,'/gene_decoding/')
   out.path = paste0('Results/replication/',data,'/')
   load('Data/connectivity_matrices/',data,'.RData')
+  orig.pls = read.csv(paste0(in.path,"plsout/pls1.csv")) # Read in PLS outputs
 }
 
 ###
@@ -73,7 +74,7 @@ colnames(pls1)[1]<- 'hgnc_symbol'
 # genes = genes[-which(is.na(genes$length)),]
 
 pls1.genes = genes %>% left_join(pls1, by='hgnc_symbol') # Match chromosome assignment and gene length to PLS1
-pls1.genes = pls1.genes[order(pls1.genes$z_uncorr)]
+pls1.genes = pls1.genes[order(pls1.genes$z_uncorr, decreasing = T),]
 
 genes= pls1.genes[,c(1:7)]
 pls1 = pls1.genes[,c(1,7,8,9)]
